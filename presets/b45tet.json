@@ -37,9 +37,7 @@
     "default_prompt": "",
     "default_prompt_negative": "",
     "default_styles": [
-        "Fooocus Masterpiece",
-        "mre-dynamic-illustration",
-        "artstyle-watercolor"
+        "Fooocus Masterpiece"
     ],
     "default_aspect_ratio": "704*1408",
     "default_overwrite_step": -1,
