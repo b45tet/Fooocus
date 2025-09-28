@@ -42,6 +42,8 @@
         "Artstyle Watercolor"
     ],
     "default_aspect_ratio": "704*1408",
+    "default_image_number": 8,
+    "default_output_format": "webp",
     "default_overwrite_step": -1,
     "checkpoint_downloads": {
         "juggernautXL_v8Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_v8Rundiffusion.safetensors"
