@@ -1,6 +1,4 @@
-# Colab 2026.10 GPU runtime provides the CUDA builds of PyTorch and torchvision.
-torch==2.11.0
-torchvision==0.26.0
+# Uses the CUDA builds of PyTorch and torchvision preinstalled in the Colab GPU runtime; do not pin them here.
 numpy==2.1.3
 torchsde==0.2.6
 einops==0.8.1

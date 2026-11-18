@@ -111,7 +111,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/b45tet/Fooocus/blob/main/fooocus_colab.ipynb)
 
-Select the **2026.10** runtime and a **GPU** accelerator, then run the notebook cell. It uses Colab's CUDA builds of PyTorch 2.11.0 and torchvision 0.26.0, and installs the remaining dependencies (including NumPy 2.1.3) into a virtual environment without changing the notebook kernel's packages. The first launch downloads the models required by the `b45tet` preset.
+Select a **GPU** accelerator on a Python 3.13 runtime (2026.10 or newer), then run the notebook cell. It uses Colab's preinstalled CUDA builds of PyTorch (2.11 or newer) and torchvision, and installs the remaining dependencies (including NumPy 2.1.3) into a virtual environment without changing the notebook kernel's packages. The first launch downloads the models required by the `b45tet` preset.
 
 The notebook reuses an existing `/content/Fooocus` checkout without updating it. If that checkout predates `colab.py`, update it before rerunning the cell or start a fresh runtime. To launch from an existing checkout:
 
@@ -126,6 +126,8 @@ The inpainting canvases use Gradio's built-in image editor controls for drawing 
 You can also change the preset in the UI. Please be aware that this may lead to timeouts after 60 seconds. If this is the case, please wait until the download has finished, change the preset to initial and back to the one you've selected or reload the page.
 
 Colab's available memory and session limits vary. If a preset exhausts available VRAM, try removing `--always-high-vram`.
+
+If startup fails, look at the output above the notebook's final exception. The launcher reports which step failed and, if PyTorch and torchvision import successfully, their versions and the CUDA build.
 
 Using `--always-high-vram` shifts resource allocation from RAM to VRAM and achieves the overall best balance between performance, flexibility and stability on the default T4 instance. Please find more information [here](https://github.com/lllyasviel/Fooocus/pull/1710#issuecomment-1989185346).
 
