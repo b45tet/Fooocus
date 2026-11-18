@@ -103,12 +103,27 @@ function scheduleAfterUiUpdateCallbacks() {
 
 var executedOnLoaded = false;
 
-document.addEventListener("DOMContentLoaded", function() {
+/**
+ * Run callback once the document is parsed; Gradio injects these scripts after DOMContentLoaded.
+ */
+function onDocumentReady(callback) {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", callback);
+    } else {
+        callback();
+    }
+}
+
+function checkUiLoaded() {
+    if (!executedOnLoaded && gradioApp().querySelector('#generate_button')) {
+        executedOnLoaded = true;
+        executeCallbacks(uiLoadedCallbacks);
+    }
+}
+
+onDocumentReady(function() {
     var mutationObserver = new MutationObserver(function(m) {
-        if (!executedOnLoaded && gradioApp().querySelector('#generate_button')) {
-            executedOnLoaded = true;
-            executeCallbacks(uiLoadedCallbacks);
-        }
+        checkUiLoaded();
 
         executeCallbacks(uiUpdateCallbacks, m);
         scheduleAfterUiUpdateCallbacks();
@@ -120,6 +135,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
     initStylePreviewOverlay();
+    // Later scripts register their callbacks synchronously after this one, so check afterwards.
+    setTimeout(checkUiLoaded, 0);
 });
 
 var onAppend = function(elem, f) {

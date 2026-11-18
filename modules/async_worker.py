@@ -2,6 +2,7 @@ import threading
 
 from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.patch import PatchSettings, patch_settings, patch_all
+from modules.image_editor import editor_to_inpaint
 import modules.config
 
 patch_all()
@@ -52,9 +53,9 @@ class AsyncTask:
         self.uov_method = args.pop()
         self.uov_input_image = args.pop()
         self.outpaint_selections = args.pop()
-        self.inpaint_input_image = args.pop()
+        self.inpaint_input_image = editor_to_inpaint(args.pop())
         self.inpaint_additional_prompt = args.pop()
-        self.inpaint_mask_image_upload = args.pop()
+        self.inpaint_mask_image_upload = editor_to_inpaint(args.pop())
 
         self.disable_preview = args.pop()
         self.disable_intermediate_results = args.pop()

@@ -81,7 +81,10 @@ function refresh_style_localization() {
 }
 
 function refresh_aspect_ratios_label(value) {
-    label = document.querySelector('#aspect_ratios_accordion div span');
+    label = document.querySelector('#aspect_ratios_accordion > .label-wrap > span:first-child');
+    if (!label) {
+        return;
+    }
     translation = getTranslation("Aspect Ratios");
     if (typeof translation == "undefined") {
         translation = "Aspect Ratios";
@@ -118,7 +121,7 @@ function localizeWholePage() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+onDocumentReady(function() {
     if (!hasLocalization()) {
         return;
     }

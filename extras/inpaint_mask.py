@@ -3,9 +3,7 @@ import sys
 import modules.config
 import numpy as np
 import torch
-from extras.GroundingDINO.util.inference import default_groundingdino
 from extras.sam.predictor import SamPredictor
-from rembg import remove, new_session
 from segment_anything import sam_model_registry
 from segment_anything.utils.amg import remove_small_regions
 
@@ -55,10 +53,12 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     if extras is None:
         extras = {}
 
-    if 'image' in image:
+    if isinstance(image, dict):
         image = image['image']
 
     if mask_model != 'sam' or sam_options is None:
+        from rembg import remove, new_session
+
         result = remove(
             image,
             session=new_session(mask_model, **extras),
@@ -68,17 +68,23 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
 
         return result, dino_detection_count, sam_detection_count, sam_detection_on_mask_count
 
-    detections, boxes, logits, phrases = default_groundingdino(
-        image=image,
-        caption=sam_options.dino_prompt,
-        box_threshold=sam_options.dino_box_threshold,
-        text_threshold=sam_options.dino_text_threshold
-    )
+    if sys.version_info >= (3, 13):
+        from extras.GroundingDINO.transformers_detector import detect_boxes
 
-    H, W = image.shape[0], image.shape[1]
-    boxes = boxes * torch.Tensor([W, H, W, H])
-    boxes[:, :2] = boxes[:, :2] - boxes[:, 2:] / 2
-    boxes[:, 2:] = boxes[:, 2:] + boxes[:, :2]
+        boxes = detect_boxes(image, sam_options.dino_prompt,
+                             sam_options.dino_box_threshold, sam_options.dino_text_threshold)
+    else:
+        from extras.GroundingDINO.util.inference import default_groundingdino
+        from torchvision.ops import box_convert
+
+        _, boxes, _, _ = default_groundingdino(
+            image=image,
+            caption=sam_options.dino_prompt,
+            box_threshold=sam_options.dino_box_threshold,
+            text_threshold=sam_options.dino_text_threshold
+        )
+        height, width = image.shape[:2]
+        boxes = box_convert(boxes * boxes.new_tensor([width, height, width, height]), 'cxcywh', 'xyxy')
 
     sam_checkpoint = modules.config.download_sam_model(sam_options.model_type)
     sam = sam_model_registry[sam_options.model_type](checkpoint=sam_checkpoint)
@@ -118,7 +124,7 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
         sam_detection_count = len(masks)
         if sam_options.max_detections == 0:
             sam_options.max_detections = sys.maxsize
-        sam_objects = min(len(logits), sam_options.max_detections)
+        sam_objects = min(len(boxes), sam_options.max_detections)
         for obj_ind in range(sam_objects):
             mask_tensor = masks[obj_ind][0]
             final_mask_tensor += mask_tensor

@@ -65,24 +65,27 @@ function on_style_selection_blur() {
     target.dispatchEvent(e);
 }
 
-onUiLoaded(async () => {
-    let spans = document.querySelectorAll('.aspect_ratios span');
-
-    spans.forEach(function (span) {
-        span.innerHTML = span.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+// Gradio 5 mounts tab and hidden-panel contents lazily, so these run after each UI update.
+onAfterUiUpdate(() => {
+    document.querySelectorAll('.aspect_ratios span').forEach(function (span) {
+        if (span.innerHTML.includes('&lt;')) {
+            span.innerHTML = span.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        }
     });
 
-    document.querySelector('.style_selections').addEventListener('focusout', function (event) {
-        setTimeout(() => {
-            if (!this.contains(document.activeElement)) {
-                on_style_selection_blur();
-            }
-        }, 200);
-    });
-
-    let inputs = document.querySelectorAll('.lora_weight input[type="range"]');
-
-    inputs.forEach(function (input) {
+    document.querySelectorAll('.lora_weight input[type="range"]').forEach(function (input) {
         input.style.marginTop = '12px';
     });
+});
+
+document.addEventListener('focusout', function (event) {
+    const styleSelections = event.target.closest && event.target.closest('.style_selections');
+    if (!styleSelections) {
+        return;
+    }
+    setTimeout(() => {
+        if (!styleSelections.contains(document.activeElement)) {
+            on_style_selection_blur();
+        }
+    }, 200);
 });

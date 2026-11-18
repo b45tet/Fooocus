@@ -184,7 +184,7 @@ onAfterUiUpdate(function() {
     updateOnBackgroundChange();
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+onDocumentReady(function() {
     //const modalFragment = document.createDocumentFragment();
     const modal = document.createElement('div');
     modal.onclick = closeModal;
